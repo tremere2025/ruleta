@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Ruleta</title>
+  <title>Control de Juego de Ruleta</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -38,16 +38,19 @@
       padding: 5px;
       margin: 5px;
     }
+    .form-container {
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
   <h1>Control de Juego de Ruleta</h1>
 
-  <form id="ruletaForm">
+  <div class="form-container">
     <label for="numeroActual">Número Actual: </label>
     <input type="number" id="numeroActual" min="0" max="36" required>
-    <button type="submit">Agregar</button>
-  </form>
+    <button id="agregarBtn">Agregar</button>
+  </div>
 
   <table>
     <thead>
@@ -118,12 +121,13 @@
 
     // Función para agregar una fila a la tabla
     function agregarFila(numeroActual) {
-      const numeroAnterior = historial.length > 0 ? historial[historial.length - 1].numeroActual : '';
-      const numeroSiguiente = vecinos[numeroActual][0]; // Vecino izquierdo
+      const numeroAnterior = historial.length > 0 ? historial[historial.length - 1].numeroActual : null;
+      const numeroSiguiente = historial.length > 1 ? historial[historial.length - 2].numeroAnterior : null;
       const frecuencia = historial.filter(row => row.numeroActual === numeroActual).length + 1;
       const vecinosIzq = vecinos[numeroActual][0];
       const vecinosDer = vecinos[numeroActual][1];
 
+      // Verificación de repetidos
       const repetido = historial.some(row => 
         (row.numeroAnterior === numeroActual || row.numeroActual === numeroSiguiente)
       ) ? 'repetido' : '';
@@ -135,9 +139,9 @@
 
       // Celdas de la fila
       row.innerHTML = `
-        <td class="${getColor(numeroAnterior)}">${numeroAnterior}</td>
+        <td class="${getColor(numeroAnterior)}">${numeroAnterior !== null ? numeroAnterior : 'null'}</td>
         <td class="${getColor(numeroActual)}">${numeroActual}</td>
-        <td class="${getColor(numeroSiguiente)}">${numeroSiguiente}</td>
+        <td class="${getColor(numeroSiguiente)}">${numeroSiguiente !== null ? numeroSiguiente : ''}</td>
         <td>${frecuencia}</td>
         <td>${vecinosIzq}</td>
         <td>${vecinosDer}</td>
@@ -148,12 +152,13 @@
     }
 
     // Función para manejar el formulario
-    document.getElementById('ruletaForm').addEventListener('submit', function(event) {
-      event.preventDefault();
+    document.getElementById('agregarBtn').addEventListener('click', function() {
       const numeroActual = parseInt(document.getElementById('numeroActual').value);
       if (numeroActual >= 0 && numeroActual <= 36) {
         agregarFila(numeroActual);
         document.getElementById('numeroActual').value = ''; // Limpiar campo
+      } else {
+        alert("Por favor, ingresa un número válido entre 0 y 36.");
       }
     });
   </script>
