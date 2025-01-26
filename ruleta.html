@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Ruleta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        input[type="number"] {
+            padding: 5px;
+            font-size: 16px;
+            width: 80%;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Control de Ruleta</h1>
+        
+        <!-- Campo para ingresar el número actual de la ruleta -->
+        <input type="number" id="numeroActual" placeholder="Ingresa el número actual (0-36)" min="0" max="36">
+        <button onclick="registrarNumero()">Registrar Número</button>
+
+        <!-- Tabla para mostrar los registros -->
+        <table id="tablaRuleta">
+            <thead>
+                <tr>
+                    <th>Número Anterior</th>
+                    <th>Número Actual</th>
+                    <th>Frecuencia</th>
+                    <th>Existe</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los registros se agregarán aquí -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Array para almacenar los registros de los números anteriores y actuales
+        let registros = [];
+
+        function registrarNumero() {
+            let numeroActual = document.getElementById('numeroActual').value;
+
+            // Validar que el número ingresado sea válido
+            if (numeroActual === '' || numeroActual < 0 || numeroActual > 36) {
+                alert("Por favor, ingresa un número válido entre 0 y 36.");
+                return;
+            }
+
+            numeroActual = parseInt(numeroActual);
+            let numeroAnterior = registros.length > 0 ? registros[registros.length - 1].numeroActual : 0;
+            let frecuencia = calcularFrecuencia(numeroActual);
+            let existe = verificarExistencia(numeroAnterior, numeroActual);
+
+            // Agregar el registro al array
+            registros.push({
+                numeroAnterior: numeroAnterior,
+                numeroActual: numeroActual,
+                frecuencia: frecuencia,
+                existe: existe
+            });
+
+            // Actualizar la tabla
+            actualizarTabla();
+        }
+
+        // Función para calcular la frecuencia de un número
+        function calcularFrecuencia(numero) {
+            return registros.filter(registro => registro.numeroActual === numero).length;
+        }
+
+        // Función para verificar si la combinación de "Número anterior" y "Número actual" ya existe
+        function verificarExistencia(numeroAnterior, numeroActual) {
+            return registros.some(registro => registro.numeroAnterior === numeroAnterior && registro.numeroActual === numeroActual) ? 'Repetido' : '';
+        }
+
+        // Función para actualizar la tabla con los nuevos registros
+        function actualizarTabla() {
+            const tabla = document.getElementById('tablaRuleta').getElementsByTagName('tbody')[0];
+            tabla.innerHTML = ''; // Limpiar la tabla
+
+            registros.forEach(registro => {
+                let row = tabla.insertRow();
+                row.insertCell(0).textContent = registro.numeroAnterior;
+                row.insertCell(1).textContent = registro.numeroActual;
+                row.insertCell(2).textContent = registro.frecuencia;
+                row.insertCell(3).textContent = registro.existe;
+            });
+        }
+    </script>
+
+</body>
+</html>
