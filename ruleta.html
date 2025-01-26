@@ -1,143 +1,161 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Ruleta</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        input[type="number"] {
-            padding: 5px;
-            font-size: 16px;
-            width: 80%;
-            margin: 10px 0;
-        }
-        button {
-            padding: 10px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Ruleta</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #333;
+      color: white;
+    }
+    .red {
+      background-color: red;
+      color: white;
+    }
+    .black {
+      background-color: black;
+      color: white;
+    }
+    .repeated {
+      background-color: lightblue;
+    }
+    input {
+      padding: 5px;
+      margin: 5px;
+    }
+  </style>
 </head>
 <body>
+  <h1>Control de Juego de Ruleta</h1>
 
-    <div class="container">
-        <h1>Control de Ruleta</h1>
-        
-        <!-- Campo para ingresar el número actual de la ruleta -->
-        <input type="number" id="numeroActual" placeholder="Ingresa el número actual (0-36)" min="0" max="36">
-        <button onclick="registrarNumero()">Registrar Número</button>
+  <form id="ruletaForm">
+    <label for="numeroActual">Número Actual: </label>
+    <input type="number" id="numeroActual" min="0" max="36" required>
+    <button type="submit">Agregar</button>
+  </form>
 
-        <!-- Tabla para mostrar los registros -->
-        <table id="tablaRuleta">
-            <thead>
-                <tr>
-                    <th>Número Anterior</th>
-                    <th>Número Actual</th>
-                    <th>Frecuencia</th>
-                    <th>Existe</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Los registros se agregarán aquí -->
-            </tbody>
-        </table>
-    </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Número Anterior</th>
+        <th>Número Actual</th>
+        <th>Número Siguiente</th>
+        <th>Frecuencia</th>
+        <th>Vecinos Izq</th>
+        <th>Vecinos Der</th>
+        <th>Existe</th>
+      </tr>
+    </thead>
+    <tbody id="tablaRuleta">
+      <!-- Las filas se agregarán aquí mediante JavaScript -->
+    </tbody>
+  </table>
 
-    <script>
-        // Array para almacenar los registros de los números anteriores y actuales
-        let registros = [];
+  <script>
+    // Lista de los vecinos según la ruleta europea
+    const vecinos = {
+      0: [32, 26],
+      1: [20, 19],
+      2: [25, 21],
+      3: [15, 27],
+      4: [2, 6],
+      5: [10, 29],
+      6: [4, 11],
+      7: [29, 28],
+      8: [23, 30],
+      9: [22, 18],
+      10: [5, 23],
+      11: [6, 8],
+      12: [00, 3],
+      13: [24, 36],
+      14: [31, 9],
+      15: [3, 34],
+      16: [33, 20],
+      17: [34, 16],
+      18: [9, 29],
+      19: [1, 23],
+      20: [5, 32],
+      21: [2, 14],
+      22: [18, 35],
+      23: [8, 10],
+      24: [13, 11],
+      25: [2, 17],
+      26: [0, 27],
+      27: [3, 13],
+      28: [7, 12],
+      29: [5, 17],
+      30: [8, 11],
+      31: [14, 17],
+      32: [0, 15],
+      33: [16, 1],
+      34: [17, 10],
+      35: [22, 11],
+      36: [13, 24],
+    };
 
-        function registrarNumero() {
-            let numeroActual = document.getElementById('numeroActual').value;
+    let historial = [];
 
-            // Validar que el número ingresado sea válido
-            if (numeroActual === '' || numeroActual < 0 || numeroActual > 36) {
-                alert("Por favor, ingresa un número válido entre 0 y 36.");
-                return;
-            }
+    // Función para determinar el color de un número
+    function getColor(num) {
+      const rojos = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+      return rojos.includes(num) ? 'red' : 'black';
+    }
 
-            numeroActual = parseInt(numeroActual);
-            let numeroAnterior = registros.length > 0 ? registros[registros.length - 1].numeroActual : 0;
-            let frecuencia = calcularFrecuencia(numeroActual);
-            let existe = verificarExistencia(numeroAnterior, numeroActual);
+    // Función para agregar una fila a la tabla
+    function agregarFila(numeroActual) {
+      const numeroAnterior = historial.length > 0 ? historial[historial.length - 1].numeroActual : '';
+      const numeroSiguiente = vecinos[numeroActual][0]; // Vecino izquierdo
+      const frecuencia = historial.filter(row => row.numeroActual === numeroActual).length + 1;
+      const vecinosIzq = vecinos[numeroActual][0];
+      const vecinosDer = vecinos[numeroActual][1];
 
-            // Agregar el registro al array
-            registros.push({
-                numeroAnterior: numeroAnterior,
-                numeroActual: numeroActual,
-                frecuencia: frecuencia,
-                existe: existe
-            });
+      const repetido = historial.some(row => 
+        (row.numeroAnterior === numeroActual || row.numeroActual === numeroSiguiente)
+      ) ? 'repetido' : '';
 
-            // Actualizar la tabla
-            actualizarTabla();
-        }
+      historial.push({ numeroAnterior, numeroActual, numeroSiguiente, vecinosIzq, vecinosDer });
 
-        // Función para calcular la frecuencia de un número
-        function calcularFrecuencia(numero) {
-            return registros.filter(registro => registro.numeroActual === numero).length;
-        }
+      const row = document.createElement('tr');
+      row.classList.add(repetido);
 
-        // Función para verificar si la combinación de "Número anterior" y "Número actual" ya existe
-        function verificarExistencia(numeroAnterior, numeroActual) {
-            return registros.some(registro => registro.numeroAnterior === numeroAnterior && registro.numeroActual === numeroActual) ? 'Repetido' : '';
-        }
+      // Celdas de la fila
+      row.innerHTML = `
+        <td class="${getColor(numeroAnterior)}">${numeroAnterior}</td>
+        <td class="${getColor(numeroActual)}">${numeroActual}</td>
+        <td class="${getColor(numeroSiguiente)}">${numeroSiguiente}</td>
+        <td>${frecuencia}</td>
+        <td>${vecinosIzq}</td>
+        <td>${vecinosDer}</td>
+        <td>${repetido}</td>
+      `;
 
-        // Función para actualizar la tabla con los nuevos registros
-        function actualizarTabla() {
-            const tabla = document.getElementById('tablaRuleta').getElementsByTagName('tbody')[0];
-            tabla.innerHTML = ''; // Limpiar la tabla
+      document.getElementById('tablaRuleta').appendChild(row);
+    }
 
-            registros.forEach(registro => {
-                let row = tabla.insertRow();
-                row.insertCell(0).textContent = registro.numeroAnterior;
-                row.insertCell(1).textContent = registro.numeroActual;
-                row.insertCell(2).textContent = registro.frecuencia;
-                row.insertCell(3).textContent = registro.existe;
-            });
-        }
-    </script>
-
+    // Función para manejar el formulario
+    document.getElementById('ruletaForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const numeroActual = parseInt(document.getElementById('numeroActual').value);
+      if (numeroActual >= 0 && numeroActual <= 36) {
+        agregarFila(numeroActual);
+        document.getElementById('numeroActual').value = ''; // Limpiar campo
+      }
+    });
+  </script>
 </body>
 </html>
