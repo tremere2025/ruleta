@@ -1,166 +1,218 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Juego de Ruleta</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-      border: 1px solid #ddd;
-    }
-    th {
-      background-color: #333;
-      color: white;
-    }
-    .red {
-      background-color: red;
-      color: white;
-    }
-    .black {
-      background-color: black;
-      color: white;
-    }
-    .repeated {
-      background-color: lightblue;
-    }
-    input {
-      padding: 5px;
-      margin: 5px;
-    }
-    .form-container {
-      margin-bottom: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Ruleta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+        }
+        .container {
+            margin: 20px;
+        }
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 100px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        .red {
+            background-color: red;
+            color: white;
+        }
+        .black {
+            background-color: black;
+            color: white;
+        }
+		.green {
+            background-color: green;
+            color: white;
+        }
+        .color-null {
+            background-color: lightgray;
+        }
+        .roulette {
+            margin-top: 20px;
+        }
+        /* Estilos de fondo para la frecuencia */
+        .frecuencia-1 {
+            background-color: blue;
+            color: white; /* Texto blanco para contraste */
+        }
+
+        .frecuencia-2 {
+            background-color: #4CAF50;
+            color: white; /* Texto blanco para contraste */
+        }
+
+        .frecuencia-3 {
+            background-color: yellow;
+            color: black;
+        }
+
+        .frecuencia-mayor-3 {
+            background-color: orange;
+            color: white; /* Texto blanco para contraste */
+        }		
+    </style>
 </head>
 <body>
-  <h1>Control de Juego de Ruleta</h1>
 
-  <div class="form-container">
-    <label for="numeroActual">Número Actual: </label>
-    <input type="number" id="numeroActual" min="0" max="36" required>
-    <button id="agregarBtn">Agregar</button>
-  </div>
+    <div class="container">
+        <h1>Control de Ruleta</h1>
+        <label for="numero">Número a registrar:</label>
+        <input type="number" id="numero" min="0" max="36">
+        <button onclick="registrar()">Registrar</button>
+		<button onclick="eliminarUltimoRegistro()">Eliminar Último Registro</button>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Número Anterior</th>
-        <th>Número Actual</th>
-        <th>Número Siguiente</th>
-        <th>Frecuencia</th>
-        <th>Vecinos Izq</th>
-        <th>Vecinos Der</th>
-        <th>Existe</th>
-      </tr>
-    </thead>
-    <tbody id="tablaRuleta">
-      <!-- Las filas se agregarán aquí mediante JavaScript -->
-    </tbody>
-  </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Número Anterior</th>
+                    <th>Número Actual</th>
+                    <th>Número Siguiente</th>
+                    <th>Frecuencia</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-registros">
+                <tr>
+                    <td class="color-null">-</td>
+                    <td class="color-null">-</td>
+                    <td class="color-null">-</td>
+                    <td class="color-null">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-  <script>
-    // Lista de los vecinos según la ruleta europea
-    const vecinos = {
-      0: [32, 26],
-      1: [20, 19],
-      2: [25, 21],
-      3: [15, 27],
-      4: [2, 6],
-      5: [10, 29],
-      6: [4, 11],
-      7: [29, 28],
-      8: [23, 30],
-      9: [22, 18],
-      10: [5, 23],
-      11: [6, 8],
-      12: [00, 3],
-      13: [24, 36],
-      14: [31, 9],
-      15: [3, 34],
-      16: [33, 20],
-      17: [34, 16],
-      18: [9, 29],
-      19: [1, 23],
-      20: [5, 32],
-      21: [2, 14],
-      22: [18, 35],
-      23: [8, 10],
-      24: [13, 11],
-      25: [2, 17],
-      26: [0, 27],
-      27: [3, 13],
-      28: [7, 12],
-      29: [5, 17],
-      30: [8, 11],
-      31: [14, 17],
-      32: [0, 15],
-      33: [16, 1],
-      34: [17, 10],
-      35: [22, 11],
-      36: [13, 24],
-    };
+    <div class="roulette">
+        <h2>Ruleta</h2>
+        <img src="ruleta.png" alt="Ruleta" width="300">
+        <!-- Reemplaza "ruleta.png" con la imagen que quieras utilizar -->
+    </div>
 
-    let historial = [];
+    <script>
+        let registros = [];
+        let frecuencias = {};
 
-    // Función para determinar el color de un número
-    function getColor(num) {
-      const rojos = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-      return rojos.includes(num) ? 'red' : 'black';
-    }
+        function registrar() {
+            const numero = document.getElementById('numero').value;
 
-    // Función para agregar una fila a la tabla
-    function agregarFila(numeroActual) {
-      const numeroAnterior = historial.length > 0 ? historial[historial.length - 1].numeroActual : null;
-      const numeroSiguiente = historial.length > 1 ? historial[historial.length - 2].numeroAnterior : null;
-      const frecuencia = historial.filter(row => row.numeroActual === numeroActual).length + 1;
-      const vecinosIzq = vecinos[numeroActual][0];
-      const vecinosDer = vecinos[numeroActual][1];
+            if (numero === "" || numero < 0 || numero > 36) {
+                alert("Por favor ingresa un número válido entre 0 y 36.");
+                return;
+            }
 
-      // Verificación de repetidos
-      const repetido = historial.some(row => 
-        (row.numeroAnterior === numeroActual || row.numeroActual === numeroSiguiente)
-      ) ? 'repetido' : '';
+            let color = obtenerColor(numero);
+            let numeroAnterior = registros.length > 0 ? registros[registros.length - 1].numeroActual : '-';
+            let numeroSiguiente = '-';
+            if (registros.length > 0) {
+				registros[registros.length - 1].numeroSiguiente = numero
+            }
 
-      historial.push({ numeroAnterior, numeroActual, numeroSiguiente, vecinosIzq, vecinosDer });
+            // Actualizar frecuencia
+            if (!frecuencias[numero]) {
+                frecuencias[numero] = 1;
+            } else {
+                frecuencias[numero]++;
+            }
 
-      const row = document.createElement('tr');
-      row.classList.add(repetido);
+            registros.push({
+                numeroAnterior: numeroAnterior,
+                numeroActual: numero,
+                numeroSiguiente: numeroSiguiente,
+                frecuencia: frecuencias[numero]
+            });
 
-      // Celdas de la fila
-      row.innerHTML = `
-        <td class="${getColor(numeroAnterior)}">${numeroAnterior !== null ? numeroAnterior : 'null'}</td>
-        <td class="${getColor(numeroActual)}">${numeroActual}</td>
-        <td class="${getColor(numeroSiguiente)}">${numeroSiguiente !== null ? numeroSiguiente : ''}</td>
-        <td>${frecuencia}</td>
-        <td>${vecinosIzq}</td>
-        <td>${vecinosDer}</td>
-        <td>${repetido}</td>
-      `;
+            actualizarTabla();
+        }
 
-      document.getElementById('tablaRuleta').appendChild(row);
-    }
+  function obtenerColor(numero) {
+            const numerosRojos = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+			const numerosVerdes = [0];
+            if (numerosRojos.includes(Number(numero))) {
+                return 'red';
+            } else if (numerosVerdes.includes(Number(numero))) {
+                return 'green'; // Verde
+            }
+			else {
+                return 'black';
+            }
+		 
+				  
+        }
 
-    // Función para manejar el formulario
-    document.getElementById('agregarBtn').addEventListener('click', function() {
-      const numeroActual = parseInt(document.getElementById('numeroActual').value);
-      if (numeroActual >= 0 && numeroActual <= 36) {
-        agregarFila(numeroActual);
-        document.getElementById('numeroActual').value = ''; // Limpiar campo
-      } else {
-        alert("Por favor, ingresa un número válido entre 0 y 36.");
-      }
-    });
-  </script>
+        // Función para obtener el estilo de la frecuencia (color de fondo)
+        function obtenerEstiloFrecuencia(frecuencia) {
+            if (frecuencia == 1) {
+                return 'frecuencia-1'; // Azul
+            } else if (frecuencia == 2) {
+                return 'frecuencia-2'; // Verde
+            } else if (frecuencia == 3) {
+                return 'frecuencia-3'; // Amarillo
+            } else if (frecuencia > 3) {
+                return 'frecuencia-mayor-3'; // Naranja
+            } else {
+                return ''; // Sin fondo (para frecuencias menores que 1)
+            }
+        }
+        function actualizarTabla() {
+            let tabla = document.getElementById('tabla-registros');
+            tabla.innerHTML = '';
+
+            registros.forEach((registro, index) => {
+                let fila = document.createElement('tr');
+                let colorAnterior = registro.numeroAnterior === '-' ? 'color-null' : obtenerColor(registro.numeroAnterior);
+                let colorActual = obtenerColor(registro.numeroActual);
+                let colorSiguiente = registro.numeroSiguiente === '-' ? 'color-null' : obtenerColor(registro.numeroSiguiente);
+
+				// Obtener el estilo de fondo de la frecuencia
+                let estiloFrecuencia = obtenerEstiloFrecuencia(registro.frecuencia);																	
+                fila.innerHTML = `
+                    <td class="${colorAnterior}">${registro.numeroAnterior}</td>
+                    <td class="${colorActual}">${registro.numeroActual}</td>
+                    <td class="${colorSiguiente}">${registro.numeroSiguiente}</td>
+                    <td class="${estiloFrecuencia}">${registro.frecuencia}</td>
+                `;
+                tabla.appendChild(fila);
+            });
+        }
+        // Función para eliminar el último registro
+        function eliminarUltimoRegistro() {
+            if (registros.length > 0) {
+                registros.pop(); // Eliminar el último registro
+                actualizarTabla(); // Actualizar la tabla después de eliminar
+            } else {
+                alert('No hay registros para eliminar');
+            }
+        }													 
+    </script>
+
 </body>
 </html>
