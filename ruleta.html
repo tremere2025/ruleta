@@ -50,7 +50,7 @@
             background-color: black;
             color: white;
         }
-		.green {
+        .green {
             background-color: green;
             color: white;
         }
@@ -63,12 +63,12 @@
         /* Estilos de fondo para la frecuencia */
         .frecuencia-1 {
             background-color: blue;
-            color: white; /* Texto blanco para contraste */
+            color: white;
         }
 
         .frecuencia-2 {
             background-color: #4CAF50;
-            color: white; /* Texto blanco para contraste */
+            color: white;
         }
 
         .frecuencia-3 {
@@ -78,8 +78,20 @@
 
         .frecuencia-mayor-3 {
             background-color: orange;
-            color: white; /* Texto blanco para contraste */
-        }		
+            color: white;
+        }
+
+        /* Estilo para el campo "Juega" */
+        .juega {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        /* Estilo para el campo "Vecinos" */
+        .vecinos {
+            margin-top: 20px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -89,7 +101,16 @@
         <label for="numero">Número a registrar:</label>
         <input type="number" id="numero" min="0" max="36">
         <button onclick="registrar()">Registrar</button>
-		<button onclick="eliminarUltimoRegistro()">Borrar</button>
+        <button onclick="eliminarUltimoRegistro()">Borrar</button>
+		<div class="juega">
+            <label for="juega">Juega:</label>
+            <input type="text" id="juega" disabled>
+        </div>
+        <!-- Nuevo campo Vecinos -->
+        <div class="vecinos">
+            <label for="vecinos">Vecinos:</label>
+            <input type="text" id="vecinos" disabled>
+        </div>
 
         <table>
             <thead>
@@ -109,17 +130,24 @@
                 </tr>
             </tbody>
         </table>
+
+
     </div>
 
     <div class="roulette">
         <h2>Ruleta</h2>
         <img src="ruleta.png" alt="Ruleta" width="300">
-        <!-- Reemplaza "ruleta.png" con la imagen que quieras utilizar -->
+					
     </div>
 
     <script>
         let registros = [];
         let frecuencias = {};
+        
+        // Definición de los números de la ruleta europea
+        const ruleta = [
+            0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
+        ];
 
         function registrar() {
             const numero = document.getElementById('numero').value;
@@ -130,10 +158,10 @@
             }
 
             let color = obtenerColor(numero);
-            let numeroAnterior = registros.length > 0 ? registros[registros.length - 1].numeroActual : '-';
+            let numeroAnterior = registros.length > 0 ? registros[0].numeroActual : '-'; // Obtener el primer número actual
             let numeroSiguiente = '-';
             if (registros.length > 0) {
-				registros[registros.length - 1].numeroSiguiente = numero
+                registros[0].numeroSiguiente = numero;
             }
 
             // Actualizar frecuencia
@@ -143,45 +171,52 @@
                 frecuencias[numero]++;
             }
 
-            registros.push({
+            // Insertar el nuevo registro al inicio
+            registros.unshift({
                 numeroAnterior: numeroAnterior,
                 numeroActual: numero,
                 numeroSiguiente: numeroSiguiente,
                 frecuencia: frecuencias[numero]
             });
 
+            // Llamar a la función para actualizar el campo "Juega"
+            actualizarJuega();
+            // Llamar a la función para actualizar el campo "Vecinos"
+            actualizarVecinos();
+
             actualizarTabla();
         }
 
-  function obtenerColor(numero) {
+        function obtenerColor(numero) {
             const numerosRojos = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-			const numerosVerdes = [0];
+            const numerosVerdes = [0];
             if (numerosRojos.includes(Number(numero))) {
                 return 'red';
             } else if (numerosVerdes.includes(Number(numero))) {
-                return 'green'; // Verde
-            }
-			else {
+                return 'green'; 
+ 
+            } else {
                 return 'black';
             }
-		 
-				  
+   
+   
         }
 
-        // Función para obtener el estilo de la frecuencia (color de fondo)
+	
         function obtenerEstiloFrecuencia(frecuencia) {
             if (frecuencia == 1) {
-                return 'frecuencia-1'; // Azul
+                return 'frecuencia-1'; 
             } else if (frecuencia == 2) {
-                return 'frecuencia-2'; // Verde
+                return 'frecuencia-2'; 
             } else if (frecuencia == 3) {
-                return 'frecuencia-3'; // Amarillo
+                return 'frecuencia-3'; 
             } else if (frecuencia > 3) {
-                return 'frecuencia-mayor-3'; // Naranja
+                return 'frecuencia-mayor-3'; 
             } else {
-                return ''; // Sin fondo (para frecuencias menores que 1)
+                return ''; 
             }
         }
+
         function actualizarTabla() {
             let tabla = document.getElementById('tabla-registros');
             tabla.innerHTML = '';
@@ -192,8 +227,8 @@
                 let colorActual = obtenerColor(registro.numeroActual);
                 let colorSiguiente = registro.numeroSiguiente === '-' ? 'color-null' : obtenerColor(registro.numeroSiguiente);
 
-				// Obtener el estilo de fondo de la frecuencia
-                let estiloFrecuencia = obtenerEstiloFrecuencia(registro.frecuencia);																	
+                // Obtener el estilo de fondo de la frecuencia
+                let estiloFrecuencia = obtenerEstiloFrecuencia(registro.frecuencia);								
                 fila.innerHTML = `
                     <td class="${colorAnterior}">${registro.numeroAnterior}</td>
                     <td class="${colorActual}">${registro.numeroActual}</td>
@@ -203,15 +238,73 @@
                 tabla.appendChild(fila);
             });
         }
-        // Función para eliminar el último registro
+
         function eliminarUltimoRegistro() {
             if (registros.length > 0) {
-                registros.pop(); // Eliminar el último registro
-                actualizarTabla(); // Actualizar la tabla después de eliminar
+                registros.shift(); 
+                actualizarJuega(); // Actualizar el campo "Juega"
+                actualizarVecinos(); // Actualizar el campo "Vecinos"
+                actualizarTabla(); 
             } else {
                 alert('No hay registros para eliminar');
             }
-        }													 
+        }
+
+        // Función para actualizar el campo "Juega"
+        function actualizarJuega() {
+            const numeroFila1 = registros[0] ? registros[0].numeroActual : null;
+            const frecuenciaFila1 = registros[0] ? registros[0].frecuencia : 0;
+
+            if (frecuenciaFila1 >= 2 && numeroFila1 !== null) {
+                let numerosJuega = [];
+
+                // Buscar el número en las filas siguientes
+                registros.slice(1).forEach(registro => {
+                    if (registro.numeroActual == numeroFila1) {
+                        if (registro.numeroAnterior !== '-') {
+                            numerosJuega.push(registro.numeroAnterior);
+                        }
+                        if (registro.numeroSiguiente !== '-') {
+                            numerosJuega.push(registro.numeroSiguiente);
+                        }
+                    }
+                });
+
+                // Mostrar los números en el campo "Juega"
+                document.getElementById('juega').value = numerosJuega.join(', ');
+            }
+        }
+
+        // Función para actualizar el campo "Vecinos"
+        function actualizarVecinos() {
+            const juega = document.getElementById('juega').value.trim();
+            const numerosJuega = juega.split(',').map(num => num.trim());
+
+            let vecinos = [];
+
+            // Recorrer todos los números en el campo "Juega"
+            numerosJuega.forEach(num => {
+                const numVecinos = obtenerVecinos(num);
+                vecinos = [...vecinos, ...numVecinos];
+            });
+
+            // Eliminar duplicados y mostrar en el campo "Vecinos"
+            vecinos = [...new Set(vecinos)];
+            document.getElementById('vecinos').value = vecinos.join(', ');
+			 
+        }
+
+        // Función para obtener los vecinos de un número en la ruleta
+        function obtenerVecinos(numero) {
+            const index = ruleta.indexOf(Number(numero));
+            if (index === -1) return []; // Si no se encuentra el número
+
+            const izquierda = ruleta[(index - 1 + ruleta.length) % ruleta.length];
+            const derecha = ruleta[(index + 1) % ruleta.length];
+
+            // Retornar los vecinos
+            return [izquierda, derecha];
+        }
     </script>
 
 </body>
