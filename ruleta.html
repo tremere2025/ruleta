@@ -83,14 +83,30 @@
 
         /* Estilo para el campo "Juega" */
         .juega {
-            margin-top: 20px;
-            font-size: 18px;
+            margin-top: 15px;
+            font-size: 16px;
         }
 
         /* Estilo para el campo "Vecinos" */
         .vecinos {
-            margin-top: 20px;
-            font-size: 18px;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+
+        /* Estilo para el campo "Ganaste" */
+        .ganaste {
+            margin-top: 15px;
+            font-size: 16px;
+        }
+
+        /* Hacer que el textarea sea flexible */
+        textarea {
+            width: 50%;
+          //  min-height: 40px;
+          //  max-height: 200px;
+            padding: 2px;
+            font-size: 16px;
+            resize: vertical;
         }
     </style>
 </head>
@@ -102,14 +118,23 @@
         <input type="number" id="numero" min="0" max="36">
         <button onclick="registrar()">Registrar</button>
         <button onclick="eliminarUltimoRegistro()">Borrar</button>
-		<div class="juega">
-            <label for="juega">Juega:</label>
-            <input type="text" id="juega" disabled>
+
+        <div class="juega">
+            <label for="juega"> Juega :</label>
+            <!-- Cambié el campo de texto a textarea -->
+            <textarea id="juega" disabled></textarea>
         </div>
+
         <!-- Nuevo campo Vecinos -->
         <div class="vecinos">
             <label for="vecinos">Vecinos:</label>
-            <input type="text" id="vecinos" disabled>
+            <textarea id="vecinos" disabled></textarea>
+        </div>
+
+        <!-- Nuevo campo Ganaste -->
+        <div class="ganaste">
+            <label for="ganaste">Ganaste:</label>
+            <textarea id="ganaste" disabled></textarea>
         </div>
 
         <table>
@@ -137,13 +162,13 @@
     <div class="roulette">
         <h2>Ruleta</h2>
         <img src="ruleta.png" alt="Ruleta" width="300">
-					
+  
     </div>
 
     <script>
         let registros = [];
         let frecuencias = {};
-        
+       
         // Definición de los números de la ruleta europea
         const ruleta = [
             0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
@@ -183,6 +208,8 @@
             actualizarJuega();
             // Llamar a la función para actualizar el campo "Vecinos"
             actualizarVecinos();
+            // Llamar a la función para actualizar el campo "Ganaste"
+            actualizarGanaste();
 
             actualizarTabla();
         }
@@ -193,7 +220,7 @@
             if (numerosRojos.includes(Number(numero))) {
                 return 'red';
             } else if (numerosVerdes.includes(Number(numero))) {
-                return 'green'; 
+                return 'green';
  
             } else {
                 return 'black';
@@ -202,18 +229,18 @@
    
         }
 
-	
+ 
         function obtenerEstiloFrecuencia(frecuencia) {
             if (frecuencia == 1) {
-                return 'frecuencia-1'; 
+                return 'frecuencia-1';
             } else if (frecuencia == 2) {
-                return 'frecuencia-2'; 
+                return 'frecuencia-2';
             } else if (frecuencia == 3) {
-                return 'frecuencia-3'; 
+                return 'frecuencia-3';
             } else if (frecuencia > 3) {
-                return 'frecuencia-mayor-3'; 
+                return 'frecuencia-mayor-3';
             } else {
-                return ''; 
+                return '';
             }
         }
 
@@ -228,7 +255,7 @@
                 let colorSiguiente = registro.numeroSiguiente === '-' ? 'color-null' : obtenerColor(registro.numeroSiguiente);
 
                 // Obtener el estilo de fondo de la frecuencia
-                let estiloFrecuencia = obtenerEstiloFrecuencia(registro.frecuencia);								
+                let estiloFrecuencia = obtenerEstiloFrecuencia(registro.frecuencia);
                 fila.innerHTML = `
                     <td class="${colorAnterior}">${registro.numeroAnterior}</td>
                     <td class="${colorActual}">${registro.numeroActual}</td>
@@ -241,10 +268,11 @@
 
         function eliminarUltimoRegistro() {
             if (registros.length > 0) {
-                registros.shift(); 
+                registros.shift();
                 actualizarJuega(); // Actualizar el campo "Juega"
                 actualizarVecinos(); // Actualizar el campo "Vecinos"
-                actualizarTabla(); 
+                actualizarGanaste(); // Actualizar el campo "Ganaste"
+                actualizarTabla();
             } else {
                 alert('No hay registros para eliminar');
             }
@@ -291,7 +319,7 @@
             // Eliminar duplicados y mostrar en el campo "Vecinos"
             vecinos = [...new Set(vecinos)];
             document.getElementById('vecinos').value = vecinos.join(', ');
-			 
+ 
         }
 
         // Función para obtener los vecinos de un número en la ruleta
@@ -304,6 +332,20 @@
 
             // Retornar los vecinos
             return [izquierda, derecha];
+        }
+
+        // Función para actualizar el campo "Ganaste"
+        function actualizarGanaste() {
+            const juega = document.getElementById('juega').value.trim();
+            const vecinos = document.getElementById('vecinos').value.trim();
+            
+            const numerosJuega = juega.split(',').map(num => num.trim());
+            const numerosVecinos = vecinos.split(',').map(num => num.trim());
+
+            let ganaste = numerosJuega.filter(num => numerosVecinos.includes(num));
+
+            // Mostrar los números ganadores en el campo "Ganaste"
+            document.getElementById('ganaste').value = ganaste.join(', ');
         }
     </script>
 
